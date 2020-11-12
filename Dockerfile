@@ -1,35 +1,34 @@
-ARG DOCKER_PREFIX=
-
 FROM ${DOCKER_PREFIX}ubuntu:focal
 
+ARG DOCKER_PREFIX=
+
 ARG TRUST_CERT=
+
+ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
+
+ARG CONCURRENCY=2
+
+ARG SQUID_VERSION=4.13
+
+ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
 
 RUN if [ ! -z "$TRUST_CERT" ]; then \
         echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
         update-ca-certificates ; \
-    fi
-
-# Normalize apt sources
-RUN cat /etc/apt/sources.list | grep -v '^#' | sed /^$/d > sources.tmp.1 && \
+    fi && \
+    cat /etc/apt/sources.list | grep -v '^#' | sed /^$/d > sources.tmp.1 && \
     cat /etc/apt/sources.list | sed s/deb\ /deb-src\ /g | grep -v '^#' | sed /^$/d > sources.tmp.2 && \
     cat sources.tmp.1 sources.tmp.2 | sort -u > /etc/apt/sources.list && \
-    rm -f sources.tmp.1 sources.tmp.2
-
-RUN apt-get update && \
+    rm -f sources.tmp.1 sources.tmp.2 && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev nano
-
-#ARG SQUID_VERSION=4.0.25
-ARG SQUID_VERSION=4.13
-
-# TODO: verify the squid download with the signing key
-RUN mkdir /src \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev nano && \
+    mkdir /src \
     && cd /src \
     && wget http://www.squid-cache.org/Versions/v4/squid-$SQUID_VERSION.tar.xz \
     && mkdir squid \
-    && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz
-    
-RUN cd /src/squid && \
+    && tar -C squid --strip-components=1 -xvf squid-$SQUID_VERSION.tar.xz && \
+    cd /src/squid && \
     ./configure \
         --prefix=/usr \
         --datadir=/usr/share/squid4 \
@@ -65,35 +64,21 @@ RUN cd /src/squid && \
 		--with-filedescriptors=65536 \
 		--with-large-files \
 		--with-default-user=proxy \
-	        --disable-arch-native
-#        	--disable-ipv6
-		
-ARG CONCURRENCY=1
-
-RUN cd /src/squid && \
+	    --disable-arch-native && \
+    cd /src/squid && \
     make -j$CONCURRENCY && \
-    make install
-
+    make install && \
 # Download p2cli dependency
-RUN wget -O /usr/local/bin/p2 \
+    wget -O /usr/local/bin/p2 \
     https://github.com/wrouesnel/p2cli/releases/download/r1/p2 && \
-    chmod +x /usr/local/bin/p2
-
-# Clone and build proxychains-ng for SSL upstream proxying
-ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
-
-RUN apt-get install -y git
-
-RUN git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
+    chmod +x /usr/local/bin/p2 && \
+    apt-get install -y git && \
+    git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
     cd /src/proxychains-ng && \
     git checkout $PROXYCHAINS_COMMITTISH && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
-    make -j$CONCURRENCY && make install
-
-ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
-
-RUN wget -O /tmp/doh.tgz \
-    $URL_DOH && \
+    make -j$CONCURRENCY && make install  && \
+    wget -O /tmp/doh.tgz $URL_DOH && \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
     chmod +x /usr/local/bin/dns-over-https-proxy
 
