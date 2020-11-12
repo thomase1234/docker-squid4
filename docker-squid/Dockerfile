@@ -1,6 +1,6 @@
 ARG DOCKER_PREFIX=
 
-FROM ${DOCKER_PREFIX}ubuntu:artful
+FROM ${DOCKER_PREFIX}ubuntu:focal
 
 ARG TRUST_CERT=
 
@@ -19,7 +19,8 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev nano
 
-ARG SQUID_VERSION=4.0.25
+#ARG SQUID_VERSION=4.0.25
+ARG SQUID_VERSION=4.13
 
 # TODO: verify the squid download with the signing key
 RUN mkdir /src \
