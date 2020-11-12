@@ -6,7 +6,7 @@ ARG TRUST_CERT=
 
 ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
 
-ARG CONCURRENCY=2
+ARG CONCURRENCY=4
 
 ARG SQUID_VERSION=4.13
 
@@ -21,7 +21,9 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     cat sources.tmp.1 sources.tmp.2 | sort -u > /etc/apt/sources.list && \
     rm -f sources.tmp.1 sources.tmp.2 && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid && \
+    DEBIAN_FRONTEND=noninteractive apt install -y devscripts equivs && \ 
+    #DEBIAN_FRONTEND=noninteractive apt-get build-dep -y squid
+    mk-build-deps squid --install -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y' && \ 
     DEBIAN_FRONTEND=noninteractive apt-get install -y wget tar xz-utils libssl-dev nano && \
     mkdir /src \
     && cd /src \
@@ -80,7 +82,11 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     make -j$CONCURRENCY && make install  && \
     wget -O /tmp/doh.tgz $URL_DOH && \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
-    chmod +x /usr/local/bin/dns-over-https-proxy
+    chmod +x /usr/local/bin/dns-over-https-proxy && \
+    cd / && rm -rf /src && \
+    DEBIAN_FRONTEND=noninteractive apt-get remove -y libssl-dev squid-build-deps dev-scripts && \
+    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY squid.conf.p2 /squid.conf.p2
 COPY squid.bsh /squid.bsh
