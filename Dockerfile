@@ -65,8 +65,8 @@ RUN cd /src/squid && \
 		--with-filedescriptors=65536 \
 		--with-large-files \
 		--with-default-user=proxy \
-        --disable-arch-native \
-        --disable-ipv6
+	        --disable-arch-native \
+#        	--disable-ipv6
 		
 ARG CONCURRENCY=1
 
