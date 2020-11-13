@@ -6,7 +6,7 @@ ARG TRUST_CERT=
 
 ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
 
-ARG CONCURRENCY=2
+ARG CONCURRENCY=4
 
 ARG SQUID_VERSION=4.13
 
