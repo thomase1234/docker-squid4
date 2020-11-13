@@ -23,7 +23,7 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     cat sources.tmp.1 sources.tmp.2 | sort -u > /etc/apt/sources.list && \
     rm -f sources.tmp.1 sources.tmp.2 && \
     apt-get update && \
-    apt-get install -y devscripts equivs git wget tar xz-utils libssl-dev nano && \ 
+    apt-get install -y devscripts equivs git wget xz-utils libssl-dev nano && \ 
     mk-build-deps squid --install -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y' && \
     mkdir /src && \
     cd /src && \
@@ -83,7 +83,7 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
     chmod +x /usr/local/bin/dns-over-https-proxy && \
     cd / && rm -rf /src && rm /tmp/doh.tgz && \
-    apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
+#    apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
