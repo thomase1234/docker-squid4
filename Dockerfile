@@ -4,9 +4,7 @@ FROM ${DOCKER_PREFIX}ubuntu:focal
 
 ARG TRUST_CERT=
 
-ARG URL_DOH=https://github.com/wrouesnel/dns-over-https-proxy/releases/download/v0.0.2/dns-over-https-proxy_v0.0.2_linux-amd64.tar.gz
-
-ARG CONCURRENCY=4
+ARG CONCURRENCY=2
 
 ARG SQUID_VERSION=4.13
 
@@ -79,9 +77,6 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     git checkout $PROXYCHAINS_COMMITTISH && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
     make -j$CONCURRENCY && make install  && \
-    wget -O /tmp/doh.tgz $URL_DOH && \
-    tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
-    chmod +x /usr/local/bin/dns-over-https-proxy && \
     cd / && rm -rf /src && rm /tmp/doh.tgz && \
 # remove buildtime dependencies
     apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
