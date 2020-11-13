@@ -8,8 +8,6 @@ ARG CONCURRENCY=4
 
 ARG SQUID_VERSION=4.13
 
-ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
-
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN if [ ! -z "$TRUST_CERT" ]; then \
@@ -72,11 +70,6 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     wget -O /usr/local/bin/p2 \
     https://github.com/wrouesnel/p2cli/releases/download/r1/p2 && \
     chmod +x /usr/local/bin/p2 && \
-    git clone https://github.com/rofl0r/proxychains-ng.git /src/proxychains-ng && \
-    cd /src/proxychains-ng && \
-    git checkout $PROXYCHAINS_COMMITTISH && \
-    ./configure --prefix=/usr --sysconfdir=/etc && \
-    make -j$CONCURRENCY && make install  && \
     cd / && rm -rf /src && \
     # remove buildtime dependencies
     apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
