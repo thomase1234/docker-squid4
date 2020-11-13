@@ -34,40 +34,39 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     ./configure \
         --prefix=/usr \
         --datadir=/usr/share/squid4 \
-		--sysconfdir=/etc/squid4 \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		--enable-inline \
-		--enable-async-io=8 \
-		--enable-storeio="ufs,aufs,diskd,rock" \
-		--enable-removal-policies="lru,heap" \
-		--enable-delay-pools \
-		--enable-cache-digests \
-		--enable-underscores \
-		--enable-icap-client \
-		--enable-follow-x-forwarded-for \
-		--enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,NIS,PAM,POP3,RADIUS,SASL,SMB" \
-		--enable-auth-digest="file,LDAP" \
-		--enable-auth-negotiate="kerberos,wrapper" \
-		--enable-auth-ntlm="fake" \
-		--enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
-		--enable-url-rewrite-helpers="fake" \
-		--enable-eui \
-		--enable-esi \
-		--enable-icmp \
-		--enable-zph-qos \
-		--with-openssl \
-		--enable-ssl \
-		--enable-ssl-crtd \ 
-		--disable-translation \
-		--with-swapdir=/var/spool/squid4 \
-		--with-logdir=/var/log/squid4 \
-		--with-pidfile=/var/run/squid4.pid \
-		--with-filedescriptors=65536 \
-		--with-large-files \
-		--with-default-user=proxy \
-	    --disable-arch-native && \
-    cd /src/squid && \
+        --sysconfdir=/etc/squid4 \
+        --localstatedir=/var \
+        --mandir=/usr/share/man \
+        --enable-inline \
+        --enable-async-io=8 \
+        --enable-storeio="ufs,aufs,diskd,rock" \
+        --enable-removal-policies="lru,heap" \
+        --enable-delay-pools \
+        --enable-cache-digests \
+        --enable-underscores \
+        --enable-icap-client \
+        --enable-follow-x-forwarded-for \
+        --enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,NIS,PAM,POP3,RADIUS,SASL,SMB" \
+        --enable-auth-digest="file,LDAP" \
+        --enable-auth-negotiate="kerberos,wrapper" \
+        --enable-auth-ntlm="fake" \
+        --enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,unix_group,wbinfo_group" \
+        --enable-url-rewrite-helpers="fake" \
+        --enable-eui \
+        --enable-esi \
+        --enable-icmp \
+        --enable-zph-qos \
+        --with-openssl \
+        --enable-ssl \
+        --enable-ssl-crtd \
+        --disable-translation \
+        --with-swapdir=/var/spool/squid4 \
+        --with-logdir=/var/log/squid4 \
+        --with-pidfile=/var/run/squid4.pid \
+        --with-filedescriptors=65536 \
+        --with-large-files \
+        --with-default-user=proxy \
+        --disable-arch-native && \
     make -j$CONCURRENCY && \
     make install && \
 # Download p2cli dependency
@@ -83,8 +82,11 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     tar -xvvf /tmp/doh.tgz --strip-components=1 -C /usr/local/bin/ && \
     chmod +x /usr/local/bin/dns-over-https-proxy && \
     cd / && rm -rf /src && rm /tmp/doh.tgz && \
-#    apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
+# remove buildtime dependencies
+    apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
     apt-get autoremove -y && \
+# install runtime dependencies
+    apt-get install --no-install-recommends -y libxml2 libexpat1 libgssapi-krb5-2 libcap2 libnetfilter-conntrack3 libltdl7 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
