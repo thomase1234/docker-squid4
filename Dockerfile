@@ -13,8 +13,8 @@ ARG PROXYCHAINS_COMMITTISH=7a233fb1f05bcbf3d7f5c91658932261de1e13cb
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN if [ ! -z "$TRUST_CERT" ]; then \
-        echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
-        update-ca-certificates ; \
+    echo "$TRUST_CERT" > /usr/local/share/ca-certificates/build-trust.crt ; \
+    update-ca-certificates ; \
     fi && \
     cat /etc/apt/sources.list | grep -v '^#' | sed /^$/d > sources.tmp.1 && \
     cat /etc/apt/sources.list | sed s/deb\ /deb-src\ /g | grep -v '^#' | sed /^$/d > sources.tmp.2 && \
@@ -68,7 +68,7 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     make -j$CONCURRENCY && \
     make install && \
     chmod +s /usr/libexec/pinger && \
-# Download p2cli dependency
+    # Download p2cli dependency
     wget -O /usr/local/bin/p2 \
     https://github.com/wrouesnel/p2cli/releases/download/r1/p2 && \
     chmod +x /usr/local/bin/p2 && \
@@ -78,10 +78,10 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     ./configure --prefix=/usr --sysconfdir=/etc && \
     make -j$CONCURRENCY && make install  && \
     cd / && rm -rf /src && rm /tmp/doh.tgz && \
-# remove buildtime dependencies
+    # remove buildtime dependencies
     apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
     apt-get autoremove -y && \
-# install runtime dependencies
+    # install runtime dependencies
     apt-get install --no-install-recommends -y libxml2 libexpat1 libgssapi-krb5-2 libcap2 libnetfilter-conntrack3 libltdl7 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
