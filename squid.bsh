@@ -4,9 +4,14 @@
 if [ ! -d /etc/squid4/ssl_cert ]; then
     mkdir /etc/squid4/ssl_cert
 fi
-
 chown -R proxy:proxy /etc/squid4
 chmod 700 /etc/squid4/ssl_cert
+
+# Setup the log directory
+if [ ! -d /var/log/squid4 ]; then
+    mkdir /var/log/squid4
+fi
+chown -R proxy:proxy /var/log/squid4
 
 # Setup the squid cache directory
 if [ ! -d /var/cache/squid4 ]; then
