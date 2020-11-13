@@ -77,7 +77,7 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     git checkout $PROXYCHAINS_COMMITTISH && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
     make -j$CONCURRENCY && make install  && \
-    cd / && rm -rf /src && rm /tmp/doh.tgz && \
+    cd / && rm -rf /src && \
     # remove buildtime dependencies
     apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
     apt-get autoremove -y && \
