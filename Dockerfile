@@ -2,6 +2,8 @@ ARG DOCKER_PREFIX=
 
 FROM ${DOCKER_PREFIX}ubuntu:focal
 
+LABEL maintainer="Thomas Elsen <thomas.elsen@rivy.org>"
+
 ARG TRUST_CERT=
 
 ARG CONCURRENCY=4
@@ -83,16 +85,8 @@ COPY squid.conf.p2 /squid.conf.p2
 COPY squid.bsh /squid.bsh
 
 # Configuration environment
-ENV HTTP_PORT=3128 \
-    ICP_PORT= \
-    HTCP_PORT= \
-    MITM_PROXY= \
-    MITM_CERT= \
-    MITM_KEY= \
-    VISIBLE_HOSTNAME=docker-squid4 \
-    MAX_CACHE_SIZE=40000 \
-    MAX_OBJECT_SIZE="1536 MB" \
-    MEM_CACHE_SIZE="128 MB"
+ENV PROXY_UID=13 \
+    PROXY_GID=13
 
 EXPOSE 3128
 

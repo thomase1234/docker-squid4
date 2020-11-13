@@ -1,5 +1,11 @@
 #!/bin/bash
 
+PROXY_UID="${PROXY_UID:-13}"
+PROXY_GID="${PROXY_GID:-13}"
+
+usermod -u $PROXY_UID proxy
+groupmod -g $PROXY_GID proxy
+
 # Setup the ssl_cert directory
 if [ ! -d /etc/squid4/ssl_cert ]; then
     mkdir /etc/squid4/ssl_cert
