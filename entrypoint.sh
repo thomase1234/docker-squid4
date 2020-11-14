@@ -6,6 +6,12 @@ PROXY_GID="${PROXY_GID:-13}"
 usermod -u $PROXY_UID proxy
 groupmod -g $PROXY_GID proxy
 
+if [ -f /firstboot ]; then
+    echo This is the firstboot. Creating default config dir.
+    cp -av /etc/squid4.orig/* /etc/squid4/
+    rm /firstboot
+fi
+
 # Setup the ssl_cert directory
 if [ ! -d /etc/squid4/ssl_cert ]; then
     mkdir /etc/squid4/ssl_cert
@@ -56,28 +62,8 @@ chown -R proxy: /var/spool/squid4/ssl_db
 #ssl_db
 
 # Set the configuration
-if [ "$CONFIG_DISABLE" != "yes" ]; then
-    p2 -t /squid.conf.p2 > /etc/squid4/squid.conf
+echo "/etc/squid4/squid.conf: CONFIGURATION TEMPLATING IS DISABLED."
 
-    # Parse the cache peer lines from the environment and add them to the
-    # configuration
-    echo '# CACHE PEERS FROM DOCKER' >> /etc/squid4/squid.conf
-    env | grep 'CACHE_PEER' | sort | while read cacheline; do
-        echo "# $cacheline " >> /etc/squid4/squid.conf
-        line=$(echo $cacheline | cut -d'=' -f2-)
-        echo "cache_peer $line" >> /etc/squid4/squid.conf
-    done
-
-    # Parse the extra config lines and append them to the configuration
-    echo '# EXTRA CONFIG FROM DOCKER' >> /etc/squid4/squid.conf
-    env | grep 'EXTRA_CONFIG' | sort | while read extraline; do
-        echo "# $extraline " >> /etc/squid4/squid.conf
-        line=$(echo $extraline | cut -d'=' -f2-)
-        echo "$line" >> /etc/squid4/squid.conf
-    done
-else
-    echo "/etc/squid4/squid.conf: CONFIGURATION TEMPLATING IS DISABLED."
-fi
 
 if [ ! -e /etc/squid4/squid.conf ]; then
     echo "ERROR: /etc/squid4/squid.conf does not exist. Squid will not work."

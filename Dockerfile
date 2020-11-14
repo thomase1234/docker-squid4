@@ -77,7 +77,11 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY squid.bsh /squid.bsh
+RUN cp -av /etc/squid4 /etc/squid4.orig && \
+    rm -rf /etc/squid4/*
+    touch /firstboot
+
+COPY entrypoint.sh /entrypoint.sh
 
 # Configuration environment
 ENV PROXY_UID=13 \
@@ -85,4 +89,4 @@ ENV PROXY_UID=13 \
 
 EXPOSE 3128
 
-ENTRYPOINT [ "/squid.bsh" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
