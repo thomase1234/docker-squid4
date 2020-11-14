@@ -68,10 +68,6 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     make -j$CONCURRENCY && \
     make install && \
     chmod +s /usr/libexec/pinger && \
-    # Download p2cli dependency
-    wget -O /usr/local/bin/p2 \
-    https://github.com/wrouesnel/p2cli/releases/download/r1/p2 && \
-    chmod +x /usr/local/bin/p2 && \
     cd / && rm -rf /src && \
     # remove buildtime dependencies
     apt-get remove -y nano xz-utils libssl-dev squid-build-deps devscripts equivs git && \
