@@ -78,7 +78,7 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     rm -rf /var/lib/apt/lists/*
 
 RUN cp -av /etc/squid4 /etc/squid4.orig && \
-    rm -rf /etc/squid4/*
+    rm -rf /etc/squid4/* && \
     touch /firstboot
 
 COPY entrypoint.sh /entrypoint.sh
