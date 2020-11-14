@@ -81,7 +81,6 @@ RUN if [ ! -z "$TRUST_CERT" ]; then \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY squid.conf.p2 /squid.conf.p2
 COPY squid.bsh /squid.bsh
 
 # Configuration environment
