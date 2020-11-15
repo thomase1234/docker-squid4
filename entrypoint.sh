@@ -7,9 +7,32 @@ usermod -u $PROXY_UID proxy
 groupmod -g $PROXY_GID proxy
 
 if [ -f /firstboot ]; then
-    echo This is the firstboot. Creating default config dir.
-    cp -av /etc/squid4.orig/* /etc/squid4/
+    echo This is the firstboot. Checking if /etc/squid4/squid.conf exists.
+    if [ ! -e /etc/squid4/squid.conf ]; then
+        echo /etc/squid4/squid.conf doesn\'t exist. Copying config files. 
+        cp -av /etc/squid4.orig/* /etc/squid4/
+    fi
     rm /firstboot
+fi
+
+if [ ! -e /etc/squid4/squid.conf ]; then
+    echo /etc/squid4/squid.conf doesn\'t exist: copying default. Please edit afterwards.
+    cp /etc/squid4.orig/squid.conf /etc/squid4/squid.conf
+fi
+
+if [ ! -e /etc/squid4/cachemgr.conf ]; then
+    echo /etc/squid4/cachemgr.conf doesn\'t exist: copying default. Please edit afterwards.
+    cp /etc/squid4.orig/cachemgr.conf /etc/squid4/cachemgr.conf
+fi
+
+if [ ! -e /etc/squid4/errorpage.css ]; then
+    echo /etc/squid4/errorpage.css doesn\'t exist: copying default. Please edit afterwards.
+    cp /etc/squid4.orig/errorpage.css /etc/squid4/errorpage.css
+fi
+
+if [ ! -e /etc/squid4/mime.conf ]; then
+    echo /etc/squid4/mime.conf doesn\'t exist: copying default. Please edit afterwards.
+    cp /etc/squid4.orig/mime.conf /etc/squid4/mime.conf
 fi
 
 # Setup the ssl_cert directory
@@ -32,25 +55,6 @@ fi
 chown -R proxy: /var/cache/squid4
 chmod -R 750 /var/cache/squid4
 
-if [ ! -z $MITM_PROXY ]; then
-    if [ ! -z $MITM_KEY ]; then
-        echo "Copying $MITM_KEY as MITM key..."
-        cp $MITM_KEY /etc/squid4/ssl_cert/mitm.pem
-        chown root:proxy /etc/squid4/ssl_cert/mitm.pem
-    fi
-
-    if [ ! -z $MITM_CERT ]; then
-        echo "Copying $MITM_CERT as MITM CA..."
-        cp $MITM_CERT /etc/squid4/ssl_cert/mitm.crt
-        chown root:proxy /etc/squid4/ssl_cert/mitm.crt
-    fi
-
-    if [ -z $MITM_CERT ] || [ -z $MITM_KEY ]; then
-        echo "Must specify $MITM_CERT AND $MITM_KEY." 1>&2
-        exit 1
-    fi
-fi
-
 chown proxy: /dev/stdout
 chown proxy: /dev/stderr
 
@@ -61,20 +65,20 @@ chown -R proxy: /var/spool/squid4/ssl_db
 #ssl_crtd -c -s
 #ssl_db
 
-# Set the configuration
-echo "/etc/squid4/squid.conf: CONFIGURATION TEMPLATING IS DISABLED."
-
-
 if [ ! -e /etc/squid4/squid.conf ]; then
     echo "ERROR: /etc/squid4/squid.conf does not exist. Squid will not work."
     exit 1
 fi
 
 # Build the configuration directories if needed
+echo "Initializing cache..."
 squid -z -N
+echo "Initializing cache... DONE"
 
 # Start squid normally
+echo "Starting squid..."
 squid -N 2>&1 &
+echo "Starting squid... DONE"
 PID=$!
 
 # This construct allows signals to kill the container successfully.
